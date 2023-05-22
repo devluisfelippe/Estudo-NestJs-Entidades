@@ -14,18 +14,18 @@ export class InventoryService {
     }
 
     private searchId(id: string) {
-        const possibleId = this.inventories.find(
-            inventorySave => inventorySave.id === id
+        const possibleInventory = this.inventories.find(
+            invent => invent.id === id
         )
 
-        if (!possibleId) {
+        if (!possibleInventory) {
             throw new Error('Inventário não existe')
         }
 
-        return possibleId
+        return possibleInventory
     }
 
-    async updateRepositories(id: string, repositoryData: Partial<InventoryEntity>) {
+    async updateInventories(id: string, repositoryData: Partial<InventoryEntity>) {
         const inventory = this.searchId(id)
 
         Object.entries(repositoryData).forEach(([chave, valor]) => {

@@ -1,4 +1,4 @@
-import { IsNotEmpty, MaxLength } from 'class-validator';
+import { IsDateString, IsNotEmpty, MaxLength, isDate } from 'class-validator';
 
 export class createLotDTO {
 
@@ -10,6 +10,7 @@ export class createLotDTO {
     product_id: string;
 
     @IsNotEmpty({ message: 'A data de validade não pode ser vázia' })
+    @IsDateString()
     duedate: string;
 
     @IsNotEmpty({ message: 'o ID da empresa não pode ser vázio.' })

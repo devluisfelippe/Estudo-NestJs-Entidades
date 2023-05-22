@@ -30,7 +30,7 @@ export class InventoryController {
 
     @Put('/:id')
     async atualizaUsuario(@Param('id') id: string, @Body() updateInventory: updateInventoryDTO) {
-        const updatedInventory = await this.inventoryService.updateRepositories(id, updateInventory);
+        const updatedInventory = await this.inventoryService.updateInventories(id, updateInventory);
 
         return {
             inventário: updatedInventory,
