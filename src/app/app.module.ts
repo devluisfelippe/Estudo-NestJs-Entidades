@@ -1,16 +1,52 @@
-import { Module } from '@nestjs/common';
-import { AccessModule } from 'src/accessGroups/accessGroups.module';
-import { CompanyModule } from 'src/companies/companies.module';
-import { InventoryModule } from 'src/inventories/inventories.module';
-import { TransactionModule } from 'src/inventoryTransactions/transactions.module';
-import { LotsModule } from 'src/lots/lots.module';
-import { ProductsModule } from 'src/products/products.module';
-import { UserModule } from 'src/users/users.module';
+import { Module, ClassSerializerInterceptor } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccessModule } from '../accessGroups/accessGroups.module';
+import { AuthModule } from '../auth/auth.module';
+import { HttpExceptionFilter } from '../common/filters/exceptions.filter';
+import { CompanyModule } from '../companies/companies.module';
+import { PostgresConfigService } from '../config/postgres.config.service';
+import { InventoryModule } from '../inventories/inventories.module';
+import { InventoryTransactionModule } from '../inventoryTransactions/inventories-transactions.module';
+import { LotsModule } from '../lots/lots.module';
+import { ProductsModule } from '../products/products.module';
+import { UserModule } from '../users/users.module';
+import { ResponseTransformationInterceptor } from 'src/core/http/response.interceptor';
 
 
 @Module({
-  imports: [CompanyModule, UserModule, ProductsModule, AccessModule, LotsModule, InventoryModule, TransactionModule],
+  imports: [
+    CompanyModule,
+    UserModule,
+    ProductsModule,
+    AccessModule,
+    LotsModule,
+    InventoryModule,
+    InventoryTransactionModule,
+    AuthModule,
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
+    TypeOrmModule.forRootAsync({
+      useClass: PostgresConfigService,
+      inject: [PostgresConfigService]
+    })
+  ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseTransformationInterceptor
+    }
+  ],
 })
-export class AppModule {}
+export class AppModule { }

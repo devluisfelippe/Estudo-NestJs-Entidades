@@ -1,29 +1,50 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, HttpStatus, Post, UseGuards } from "@nestjs/common";
 import { LotService } from "./lots.service";
-import { LotEntity } from "./lot.entity";
-import { v4 as uuid } from "uuid";
-import { createLotDTO } from "./dto/createLot.dto";
+import { CreateLotDTO } from "./dto/createLot.dto";
+import { NestResponse } from "../core/http/nest-response";
+import { AuthGuard } from "../core/guards/auth.guard";
+import { AuthRequestor } from "../core/decorators/auth.decorator";
+import { NestResponseBuilder } from "../core/http/nest-response-builder";
 
 @Controller('/lots')
 export class LotController {
     constructor(private lotService: LotService){}
 
-    @Post() 
-    async createLot(@Body() lot: createLotDTO) {
-        const lotEntity = new LotEntity()
-        lotEntity.id = uuid()
-        lotEntity.code = lot.code
-        lotEntity.product_id = lot.product_id
-        lotEntity.duedate = lot.duedate
-        lotEntity.company_id = lot.company_id
-
-        this.lotService.createLot(lotEntity)
-
-        return { message: "Lot criado com sucesso!" }
-    }
+    @Post()
+    @UseGuards(AuthGuard) 
+    async createLot(@AuthRequestor() auth: any, @Body() lot: CreateLotDTO): Promise<NestResponse> {
+        try {
+            const lot_saved = await this.lotService.createLot(lot, auth.user.company_id);
+            return new NestResponseBuilder()
+                .withStatus(HttpStatus.CREATED)
+                .withNextAuth(auth.new_token)
+                .withBody({
+                    code: lot_saved.code
+                })
+                .build();
+        } catch (error) {
+            throw new BadRequestException({
+                status_code: HttpStatus.BAD_REQUEST,
+                message: [error.message]
+            });
+        };
+    };
 
     @Get()
-    async getlot() {
-        return this.lotService.lots()
-    }
+    @UseGuards(AuthGuard)
+    async getlot(@AuthRequestor() auth: any): Promise<NestResponse> {
+        try {
+            const lots = await this.lotService.getLot();
+            return new NestResponseBuilder()
+                .withStatus(HttpStatus.OK)
+                .withNextAuth(auth.new_token)
+                .withBody(lots)
+                .build();
+        } catch (error) {
+            throw new BadRequestException({
+                status_code: HttpStatus.BAD_REQUEST,
+                message: [error.message]
+            });
+        };
+    };
 }

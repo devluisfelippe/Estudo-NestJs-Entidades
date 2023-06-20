@@ -1,40 +1,48 @@
-import { createUserDTO } from './dto/createInventory.dto';
-import { updateInventoryDTO } from './dto/updateInventory.dto';
+import { NestResponseBuilder } from 'src/core/http/nest-response-builder';
+import { AuthRequestor } from '../core/decorators/auth.decorator';
+import { AuthGuard } from '../core/guards/auth.guard';
+import { CreateUserDTO } from './dto/createInventory.dto';
 import { InventoryService } from './inventories.service';
-import { InventoryEntity } from './inventory.entity';
-import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
-import { v4 as uuid } from "uuid";
+import { BadRequestException, Body, Controller, Get, HttpStatus, Param, Post, Put, UseGuards } from "@nestjs/common";
+import { NestResponse } from '../core/http/nest-response';
 
 @Controller('/inventories')
 export class InventoryController {
-    constructor(private inventoryService: InventoryService) {}
+    constructor(private inventoryService: InventoryService) { }
 
-    @Post()
-    async createInventory(@Body() inventory: createUserDTO){
-        const inventoryEntity = new InventoryEntity()
-        inventoryEntity.id = uuid()
-        inventoryEntity.product_id = inventory.product_id
-        inventoryEntity.lot_id = inventory.lot_id
-        inventoryEntity.quantity = inventory.quantity
-        inventoryEntity.company_id = inventory.company_id
-
-        this.inventoryService.createInventory(inventoryEntity)
-
-        return { message: "Inventário criado com sucesso!" }
-    }
-
-    @Get()
-    async getInventories(){
-        return this.inventoryService.getInventories()
-    }
-
-    @Put('/:id')
-    async atualizaUsuario(@Param('id') id: string, @Body() updateInventory: updateInventoryDTO) {
-        const updatedInventory = await this.inventoryService.updateInventories(id, updateInventory);
-
-        return {
-            inventário: updatedInventory,
-            message: 'Inventário atualizado com sucesso!'
-        }
-    }
-}
+    @Get('/lot/:uuid_lot')
+    @UseGuards(AuthGuard)
+    async getInventoryByLotID(@AuthRequestor() auth: any, @Param('uuid_lot') lot_id: string): Promise<NestResponse> {
+        try {
+            const inventory_finded = await this.inventoryService.getInventoryByLotID(lot_id, auth.user.company_id);
+            return new NestResponseBuilder()
+                .withStatus(HttpStatus.CREATED)
+                .withNextAuth(auth.new_token)
+                .withBody(inventory_finded)
+                .build();
+        } catch (error) {
+            throw new BadRequestException({
+                status_code: HttpStatus.BAD_REQUEST,
+                message: [error.message]
+            });
+        };
+    };
+    
+    @Get('/product/:uuid_product')
+    @UseGuards(AuthGuard)
+    async getInventoryByProductID(@AuthRequestor() auth: any, @Param('uuid_product') product_id: string): Promise<NestResponse> {
+        try {
+            const inventory_finded = await this.inventoryService.getInventoryByProductID(product_id, auth.user.company_id);
+            return new NestResponseBuilder()
+                .withStatus(HttpStatus.CREATED)
+                .withNextAuth(auth.new_token)
+                .withBody(inventory_finded)
+                .build();
+        } catch (error) {
+            throw new BadRequestException({
+                status_code: HttpStatus.BAD_REQUEST,
+                message: [error.message]
+            });
+        };
+    };
+};

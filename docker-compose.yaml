@@ -1,0 +1,27 @@
+version: "3.5"
+
+name: inventory-management
+
+services:
+  
+  postgres:
+    container_name: im-postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /data/db-inventorymanagement
+    volumes:
+      - postgres:/data/db-inventorymanagement
+    ports:
+      - 5433:5432
+    networks:
+      - im-net
+    restart: unless-stopped
+
+networks:
+  im-net:
+    driver: bridge
+
+volumes:
+  postgres: 

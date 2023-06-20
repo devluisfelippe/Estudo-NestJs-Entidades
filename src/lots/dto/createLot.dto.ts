@@ -1,18 +1,17 @@
-import { IsDateString, IsNotEmpty, MaxLength, isDate } from 'class-validator';
+import { IsDateString, IsDecimal, IsNotEmpty, IsUUID, MaxLength } from 'class-validator';
 
-export class createLotDTO {
-
+export class CreateLotDTO {
     @IsNotEmpty({ message: 'a numeração do lote não pode ser vázio.' })
     @MaxLength(10, { message: 'a numeração do lote não pode ser maior que 10 caracteres' })
     code: string;
 
-    @IsNotEmpty({ message: 'o ID do produto não pode ser vázio.' })
+    @IsUUID(4, {message: 'O id de produto não pode ser vázio.'})
     product_id: string;
+
+    @IsDecimal({ force_decimal: true, decimal_digits: '2'}, { message: "A quantidade precisa ser decimal, com duas casas e vírgula" })
+    quantity: number;
 
     @IsNotEmpty({ message: 'A data de validade não pode ser vázia' })
     @IsDateString()
     duedate: string;
-
-    @IsNotEmpty({ message: 'o ID da empresa não pode ser vázio.' })
-    company_id: string;
 }
