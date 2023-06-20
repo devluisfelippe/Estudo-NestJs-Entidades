@@ -24,7 +24,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
           status_code: exception.getStatus(),
           message: excp_message
         }
-      }
+      };
     } else {
       exception_response = {
         status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -33,9 +33,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
           timestamp: new Date().toISOString(),
           path: request.path
         }
-      }
-    }
+      };
+    };
     this.httpAdapter.reply(response, exception_response.body, exception_response.status);
-  }
-
-}
+  };
+};

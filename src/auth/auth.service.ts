@@ -16,7 +16,7 @@ export class AuthService {
       return user;
     } catch (error) {
       throw new Error('Erro ao validar credenciais de usuário.')
-    }
+    };
   };
 
   async createToken(user_id: string, company_id: string): Promise<any> {
@@ -26,7 +26,7 @@ export class AuthService {
       return new_token;
     } catch (error) {
       throw new Error(error.message)
-    }
+    };
   };
 
   async createPassToken(user_id: string, company_id: string): Promise<any> {
@@ -37,7 +37,7 @@ export class AuthService {
     } catch (error) {
       throw new Error(error.message)
     };
-  }
+  };
 
   async verifyToken(token: string): Promise<any> {
     try {

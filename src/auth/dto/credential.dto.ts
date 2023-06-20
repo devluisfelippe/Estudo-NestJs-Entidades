@@ -11,4 +11,4 @@ export class CredentialDTO {
     @MaxLength(20, { message: 'Senha inválida.' })
     password: string;
 
-}
+};

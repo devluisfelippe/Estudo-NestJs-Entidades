@@ -13,4 +13,4 @@ import { UserService } from "../users/users.service";
     controllers: [AccessController],
     providers: [AccessService, UserService, AuthService, JwtService],
 })
-export class AccessModule {}
+export class AccessModule {};

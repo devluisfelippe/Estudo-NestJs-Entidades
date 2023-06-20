@@ -22,4 +22,4 @@ export class AccessGroup {
         { name: "company_id", referencedColumnName: "id" }
     ])
     company: Company;
-}
+};

@@ -30,11 +30,10 @@ export class CompanyService {
 
     async createCompany(company): Promise<any> {
         try {
-            console.log(company)
             const company_data = { ...company };
             const new_company = await this.companyRepositoy.save(company_data);
-            await this.createUserAdmin(new_company.id)
-            return company
+            await this.createUserAdmin(new_company.id);
+            return company;
         } catch (error) {
             throw new Error('Empresa não foi criada.');
         };

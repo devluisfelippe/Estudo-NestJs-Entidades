@@ -8,10 +8,10 @@ import { NestResponseBuilder } from '../core/http/nest-response-builder';
 
 @Controller('/company')
 export class CompanyController {
-    constructor(private companyService: CompanyService ) {}
+    constructor(private companyService: CompanyService) { }
 
     @Post()
-    async createCompany(@Body() company: CreateCompanyDTO): Promise<NestResponse>{
+    async createCompany(@Body() company: CreateCompanyDTO): Promise<NestResponse> {
         try {
             await this.companyService.createCompany(company);
             return new NestResponseBuilder()
@@ -23,7 +23,5 @@ export class CompanyController {
                 message: [error.message]
             });
         };
-
-
     };
 };

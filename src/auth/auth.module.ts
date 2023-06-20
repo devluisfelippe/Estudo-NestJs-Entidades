@@ -16,4 +16,4 @@ import { AccessGroup } from '../accessGroups/access.entity';
   providers: [AuthService, UserService, AccessService, CompanyService, JwtService]
 })
 
-export class AuthModule { }
+export class AuthModule { };

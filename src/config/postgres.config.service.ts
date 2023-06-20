@@ -18,6 +18,6 @@ export class PostgresConfigService implements TypeOrmOptionsFactory {
             entities: [__dirname + '/../**/*.entity.{js,ts}'],
             synchronize: true,
             ...getSSLPostgres(this.configService.get<boolean>('DB_SSL'))
-        }
-    }
-}
+        };
+    };
+};

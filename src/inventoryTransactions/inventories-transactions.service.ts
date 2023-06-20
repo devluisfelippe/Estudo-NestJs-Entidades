@@ -19,9 +19,6 @@ export class InventoryTransactionService {
             await this.lotService.findLot(lot_id, product_id, company_id);
             const inventory = await this.inventoryService.findInventory(lot_id, product_id, company_id);
             const inventory_transaction_data = { product_id, quantity, inventory, lot_id, company_id };      
-            // if(Number(inventory.quantity) <= 0 && Number(quantity) < 0 && Number(quantity) > Number(inventory.quantity)) {
-            //     throw new Error('Quantidade de saída não pode ser maior que estoque')
-            // };
 
             let new_quantity = Number(quantity) + Number(inventory.quantity);
             if(new_quantity < 0) {

@@ -7,7 +7,7 @@ import { Inject, forwardRef } from "@nestjs/common";
 export class AccessService {
     constructor(
         @InjectRepository(AccessGroup) private readonly accessRepository: Repository<AccessGroup>,
-        @Inject(forwardRef(() => UserService)) private UserService: UserService
+        @Inject(forwardRef(() => UserService)) private userService: UserService
     ) { };
 
     async findAccessGroup(access_group_id: string, company_id: string): Promise<any> {

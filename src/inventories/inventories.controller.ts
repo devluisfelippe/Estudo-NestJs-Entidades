@@ -1,7 +1,6 @@
 import { NestResponseBuilder } from 'src/core/http/nest-response-builder';
 import { AuthRequestor } from '../core/decorators/auth.decorator';
 import { AuthGuard } from '../core/guards/auth.guard';
-import { CreateUserDTO } from './dto/createInventory.dto';
 import { InventoryService } from './inventories.service';
 import { BadRequestException, Body, Controller, Get, HttpStatus, Param, Post, Put, UseGuards } from "@nestjs/common";
 import { NestResponse } from '../core/http/nest-response';

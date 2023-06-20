@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, HttpStatus, Post, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, HttpStatus, Post, UseGuards } from "@nestjs/common";
 import { AccessService } from "./accessGroups.service";
 import { CreateAccessDTO } from "./dto/createAccess.dto";
 import { AuthGuard } from "../core/guards/auth.guard";
