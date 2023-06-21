@@ -12,7 +12,7 @@ import { InventoryTransactionModule } from '../inventoryTransactions/inventories
 import { LotsModule } from '../lots/lots.module';
 import { ProductsModule } from '../products/products.module';
 import { UserModule } from '../users/users.module';
-import { ResponseTransformationInterceptor } from 'src/core/http/response.interceptor';
+import { ResponseTransformationInterceptor } from '../core/http/response.interceptor';
 
 
 @Module({
