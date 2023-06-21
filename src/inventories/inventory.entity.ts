@@ -40,5 +40,5 @@ export class Inventory {
     lot: Lot;
 
     @OneToMany(type => InventoryTransaction, inventoryTransaction => inventoryTransaction.inventory_id)
-    inventory_transaction: InventoryTransaction;
+    inventory_transaction: InventoryTransaction[];
 }

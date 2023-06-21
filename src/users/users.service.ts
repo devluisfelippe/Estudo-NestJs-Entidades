@@ -16,18 +16,17 @@ export class UserService {
         @Inject(forwardRef(() => AccessService)) private accessService: AccessService
     ) { };
 
-    async validateUserCredentials(user_email: string, user_password: string): Promise<any> {
+    async validateLoginCredentials(user_email: string, user_password: string): Promise<any> {
         try {
-            const user = await this.userRepository.findOne({ where: { email: user_email }});
+            const user = await this.userRepository.findOne({ where: { email: user_email } });
             const valid_password = await bcrypt.compare(user_password, user.password);
             if (user && valid_password) {
                 return user;
             };
             return null;
         } catch (error) {
-            throw new Error('Não foi possível encontrar o usuário.')
-        }
-
+            throw new Error('Não foi possível encontrar o usuário.');
+        };
     };
 
     async validPayloadUser(payload): Promise<any> {
@@ -40,6 +39,20 @@ export class UserService {
         return null;
     };
 
+
+    async validPassUser(password: string, user_id: string, company_id: string): Promise<any> {
+        try {
+            const user = await this.userRepository.findOne({ where: { id: user_id, company_id: company_id } });
+            const valid_password = await bcrypt.compare(password, user.password);
+            if (user && valid_password) {
+                return user;
+            };
+            return null;
+        } catch (error) {
+            throw new Error('Não foi possível encontrar o usuário.')
+        };
+    };
+
     async emailExists(email: string): Promise<any> {
         try {
             const email_exists = await this.userRepository.findOne({
@@ -47,33 +60,27 @@ export class UserService {
             });
 
             if (!email_exists) {
-                return null
+                return null;
             };
 
             return email_exists;
         } catch (error) {
-            throw new Error('Não possível validar o e-mail.')
+            throw new Error('Não foi possível encontrar o e-mail.')
         };
     };
 
-    async createUser(user, company_id: string): Promise<any> {
+    async createUser(user, status: string, company_id: string): Promise<any> {
         try {
-            const email_exists = await this.emailExists(user.email)
+            const email_exists = await this.emailExists(user.email);
 
-            if(email_exists) {
-                throw new Error('Email já existe.')
+            if (email_exists) {
+                throw new Error('Email já existe.');
             };
 
-            const access_group_exists = await this.accessService.findAccessGroup(user.access_group_id, company_id);
+            await this.accessService.findAccessGroup(user.access_group_id, company_id);
 
-            if(!access_group_exists) {
-                throw new Error('Grupo de acesso não encontrado')
-            };
-
-            const status = 'PENDING';
             const user_data = { ...user, status, company_id };
             const user_saved = await this.userRepository.save(user_data);
-
             const token = await this.authService.createPassToken(user_saved.id, company_id);
             console.log(token);
             return user;
@@ -84,9 +91,18 @@ export class UserService {
 
     async createPass(password, auth): Promise<any> {
         try {
-            console.log(password)
             const cript_password = await bcrypt.hash(password, 10);
-            await this.userRepository.update({ id: auth.user_id }, { password: cript_password, status: 'ACTIV' });
+            await this.userRepository.update({ id: auth.user_id, company_id: auth.company_id }, { password: cript_password, status: 'ACTIV' });
+        } catch (error) {
+            throw new Error(error.message);
+        };
+    };
+
+    async createNewPass(password, auth): Promise<any> {
+        try {
+            const cript_password = await bcrypt.hash(password, 10);
+            const user = await this.userRepository.update({ id: auth.user_id, company_id: auth.company_id }, { password: cript_password });
+            return user;
         } catch (error) {
             throw new Error(error.message);
         };

@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { AccessGroup } from "./access.entity";
 import { Repository } from "typeorm";
 import { Inject, forwardRef } from "@nestjs/common";
+import { CreateAccessDTO } from './dto/createAccess.dto';
 
 export class AccessService {
     constructor(
@@ -17,7 +18,7 @@ export class AccessService {
             });
 
             if (!access_exists) {
-                throw new Error('Grupo de acesso não encontrado')
+                throw new Error('Grupo de acesso não encontrado');
             };
 
             return true;

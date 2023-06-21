@@ -46,6 +46,6 @@ export class ProductsController {
                 status_code: HttpStatus.BAD_REQUEST,
                 message: [error.message]
             });
-        }
+        };
     };
 };

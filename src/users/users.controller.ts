@@ -1,12 +1,13 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, UseGuards } from "@nestjs/common";
 import { UserService } from "./users.service";
-import { CreateUserDTO } from "./dto/createuUser.dto";
+import { CreateUserDTO } from "./dto/create-user.dto";
 import { NestResponseBuilder } from "../core/http/nest-response-builder";
 import { AuthGuard } from "../core/guards/auth.guard";
 import { AuthPassRequestor, AuthRequestor } from "../core/decorators/auth.decorator";
 import { NestResponse } from "../core/http/nest-response";
 import { AuthPass } from "../core/guards/auth-pass.guard";
-import { CreatePasswordDTO } from "./dto/createPassword.dto";
+import { CreatePasswordDTO } from "./dto/create-password.dto";
+import { NewPasswordDTO } from "./dto/new-password.dto";
 
 @Controller('/users')
 export class UserController {
@@ -16,7 +17,8 @@ export class UserController {
     @UseGuards(AuthGuard)
     async createUser(@AuthRequestor() auth: any, @Body() user: CreateUserDTO): Promise<NestResponse> {
         try {
-            await this.userService.createUser(user, auth.user.company_id);
+            const status_user = 'PENDING'
+            await this.userService.createUser(user, status_user, auth.user.company_id);
             return new NestResponseBuilder()
                 .withStatus(HttpStatus.CREATED)
                 .withNextAuth(auth.new_token)
@@ -36,6 +38,32 @@ export class UserController {
             await this.userService.createPass(pass.password, auth);
             return new NestResponseBuilder()
                 .withStatus(HttpStatus.CREATED)
+                .build();
+        } catch (error) {
+            throw new BadRequestException({
+                status_code: HttpStatus.BAD_REQUEST,
+                message: [error.message]
+            });
+        };
+    };
+
+    @Put('/:uuid_user/password')
+    @UseGuards(AuthGuard)
+    async updatePassword(@AuthRequestor() auth: any, @Param('uuid_user') user_id: string, @Body() password: NewPasswordDTO): Promise<NestResponse> {
+        try {
+            if (user_id !== auth.user.user_id) {
+                throw new Error('ID de usuário divergente de usuário logado.');
+            };
+            
+            const valid_pass = await this.userService.validPassUser(password.old_password, auth.user.user_id, auth.user.company_id);
+            if (!valid_pass) {
+                throw new Error('Senha inválida.');
+            };
+
+            await this.userService.createNewPass(password.confirm_new_password, auth.user);
+            return new NestResponseBuilder()
+                .withStatus(HttpStatus.CREATED)
+                .withNextAuth(auth.new_token)
                 .build();
         } catch (error) {
             throw new BadRequestException({

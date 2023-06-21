@@ -1,4 +1,4 @@
-import { IsDecimal, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsDecimal, IsUUID } from 'class-validator';
 
 export class CreateInventoryTransactionDTO {
     @IsUUID(4, {message: 'O id de produto não pode ser vázio.'})

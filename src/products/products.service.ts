@@ -35,12 +35,10 @@ export class ProductsService {
             });
 
             if (!product_exists) {
-                throw new Error('Produto não encontrado.')
+                throw new Error('Produto não encontrado.');
             };
-
-            console.log(product_exists)
-
-            return product_exists
+            
+            return product_exists;
         } catch (error) {
             throw new Error(error.message);
         };

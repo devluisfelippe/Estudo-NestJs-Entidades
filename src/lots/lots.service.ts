@@ -19,7 +19,7 @@ export class LotService {
             });
             
             if (!lot_exists) {
-                throw new Error('Lote não encontrado')
+                throw new Error('Lote não encontrado');
             };
 
             return true;

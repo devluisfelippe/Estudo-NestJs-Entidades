@@ -25,9 +25,9 @@ export class InventoryService {
             const inventory_exists = await this.inventoryRepository.findOne({
                 where: { lot_id: lot_id, product_id: product_id, company_id: company_id }
             });
-            
+
             if (!inventory_exists) {
-                throw new Error('Inventário não encontrado')
+                throw new Error('Inventário não encontrado');
             };
 
             return inventory_exists;
@@ -38,28 +38,35 @@ export class InventoryService {
 
     async updateInventory(lot_id: string, product_id: string, company_id: string, quantity: number): Promise<any> {
         try {
-            const inventory_updated = await this.inventoryRepository.update({ lot_id, product_id, company_id}, {quantity: quantity});
-            return inventory_updated
+            const inventory_updated = await this.inventoryRepository.update({ lot_id, product_id, company_id }, { quantity: quantity });
+            return inventory_updated;
         } catch (error) {
-            throw new Error(error.message)
+            throw new Error(error.message);
         };
     };
 
     async getInventoryByLotID(lot_id: string, company_id: string): Promise<any> {
         try {
             const inventory_exists = await this.inventoryRepository.findOne({
-                where: { lot_id: lot_id, company_id }
+                where: { lot_id: lot_id, company_id: company_id },
+                relations: {
+                    lot: true,
+                },
+                select: {
+                    id: true,
+                    quantity: true,
+                    lot: {
+                        id: true,
+                        code: true,
+                    },
+                },
             });
-            
+
             if (!inventory_exists) {
-                throw new Error('Inventário não encontrado')
+                throw new Error('Inventário não encontrado');
             };
-            
-            return {
-                lot_id: inventory_exists.lot_id,
-                product_id: inventory_exists.product_id,
-                total_quantity: inventory_exists.quantity
-            };
+
+            return inventory_exists;
         } catch (error) {
             throw new Error(error.message);
         };
@@ -88,9 +95,9 @@ export class InventoryService {
                     },
                 }
             });
-            
+
             if (!inventory_exists) {
-                throw new Error('Inventário não encontrado')
+                throw new Error('Inventário não encontrado');
             };
 
             return inventory_exists;

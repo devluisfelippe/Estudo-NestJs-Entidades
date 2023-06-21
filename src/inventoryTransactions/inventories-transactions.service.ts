@@ -18,20 +18,22 @@ export class InventoryTransactionService {
         try {
             await this.lotService.findLot(lot_id, product_id, company_id);
             const inventory = await this.inventoryService.findInventory(lot_id, product_id, company_id);
-            const inventory_transaction_data = { product_id, quantity, inventory, lot_id, company_id };      
+            const inventory_transaction_data = { product_id, quantity, inventory, lot_id, company_id };
 
-            let new_quantity = Number(quantity) + Number(inventory.quantity);
-            if(new_quantity < 0) {
-                new_quantity = 0
+            const lot_quantity = Number(quantity);
+            const inventory_quantity = Number(inventory.quantity);
+
+            const new_inventory_quantity = inventory_quantity + (lot_quantity);
+            if (lot_quantity === 0 || new_inventory_quantity < 0) {
+                throw new Error('Valor da operação não pode ser zero ou maior que o inventário.');
             };
 
             const transaction = await this.inventoryTransactionRepository.save(inventory_transaction_data);
-            
-            await this.inventoryService.updateInventory(lot_id, product_id, company_id, new_quantity)
+            await this.inventoryService.updateInventory(lot_id, product_id, company_id, new_inventory_quantity);
 
-            return transaction
+            return transaction;
         } catch (error) {
-            throw new Error(error.message)
+            throw new Error(error.message);
         };
     };
-}
+};
