@@ -2,7 +2,7 @@ import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from
 import { AuthService } from '../../auth/auth.service';
 
 @Injectable()
-export class AuthPass implements CanActivate {
+export class AuthPassToken implements CanActivate {
   constructor(private authService: AuthService) { }
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
@@ -14,7 +14,7 @@ export class AuthPass implements CanActivate {
     };
 
     try {
-      const user = await this.authService.verifyPassToken(token);
+      const user = await this.authService.validCreatePassToken(token);
       request.user = user;
       return true;
     } catch (error) {

@@ -6,11 +6,11 @@ import { AccessGroup } from "./access.entity";
 import { AuthService } from "../auth/auth.service";
 import { JwtService } from "@nestjs/jwt";
 import { User } from "../users/user.entity";
-import { UserService } from "../users/users.service";
+import { UsersService } from "../users/users.service";
 
 @Module({
     imports:[TypeOrmModule.forFeature([AccessGroup, User])],
     controllers: [AccessController],
-    providers: [AccessService, UserService, AuthService, JwtService],
+    providers: [AccessService, UsersService, AuthService, JwtService],
 })
 export class AccessModule {};

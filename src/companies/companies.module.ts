@@ -1,19 +1,19 @@
 import { Module } from '@nestjs/common';
-import { CompanyService } from './companies.service';
-import { CompanyController } from './companies.controller';
+import { CompaniesController } from './companies.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Company } from './company.entity';
-import { UserService } from '../users/users.service';
 import { User } from '../users/user.entity';
+import { AccessGroup } from '../accessGroups/access.entity';
+import { UsersService } from '../users/users.service';
+import { CompaniesService } from './companies.service';
+import { AccessService } from '../accessGroups/accessGroups.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from '../auth/auth.service';
-import { AccessService } from '../accessGroups/accessGroups.service';
-import { AccessGroup } from '../accessGroups/access.entity';
 
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Company, User, AccessGroup])], 
-  controllers: [CompanyController],
-  providers: [CompanyService, AccessService,UserService, AuthService, JwtService],
+  imports:[TypeOrmModule.forFeature([Company, User, AccessGroup])],
+  controllers: [CompaniesController],
+  providers: [CompaniesService, AccessService, UsersService, AuthService, JwtService],
 })
-export class CompanyModule {}
+export class CompaniesModule {}

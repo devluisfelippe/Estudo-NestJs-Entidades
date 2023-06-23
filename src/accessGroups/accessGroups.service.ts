@@ -1,13 +1,11 @@
-import { UserService } from '../users/users.service';
 import { InjectRepository } from "@nestjs/typeorm";
 import { AccessGroup } from "./access.entity";
 import { Repository } from "typeorm";
-import { Inject, forwardRef } from "@nestjs/common";
+
 
 export class AccessService {
     constructor(
-        @InjectRepository(AccessGroup) private readonly accessRepository: Repository<AccessGroup>,
-        @Inject(forwardRef(() => UserService)) private userService: UserService
+        @InjectRepository(AccessGroup) private readonly accessRepository: Repository<AccessGroup>
     ) { };
 
     async findAccessGroup(access_group_id: string, company_id: string): Promise<any> {

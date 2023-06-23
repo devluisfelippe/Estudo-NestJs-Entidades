@@ -5,25 +5,25 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccessModule } from '../accessGroups/accessGroups.module';
 import { AuthModule } from '../auth/auth.module';
 import { HttpExceptionFilter } from '../common/filters/exceptions.filter';
-import { CompanyModule } from '../companies/companies.module';
+import { CompaniesModule } from '../companies/companies.module';
 import { PostgresConfigService } from '../config/postgres.config.service';
-import { InventoryModule } from '../inventories/inventories.module';
-import { InventoryTransactionModule } from '../inventoryTransactions/inventories-transactions.module';
+import { InventoriesModule } from '../inventories/inventories.module';
+import { InventoriesTransactionsModule } from '../inventoryTransactions/inventories-transactions.module';
 import { LotsModule } from '../lots/lots.module';
 import { ProductsModule } from '../products/products.module';
-import { UserModule } from '../users/users.module';
+import { UsersModule } from '../users/users.module';
 import { ResponseTransformationInterceptor } from '../core/http/response.interceptor';
 
 
 @Module({
   imports: [
-    CompanyModule,
-    UserModule,
+    CompaniesModule,
+    UsersModule,
     ProductsModule,
     AccessModule,
     LotsModule,
-    InventoryModule,
-    InventoryTransactionModule,
+    InventoriesModule,
+    InventoriesTransactionsModule,
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true

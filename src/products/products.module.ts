@@ -4,7 +4,7 @@ import { ProductsController } from './products.controller';
 import { Product } from './product.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthService } from '../auth/auth.service';
-import { UserService } from '../users/users.service';
+import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../users/user.entity';
 import { AccessService } from '../accessGroups/accessGroups.service';
@@ -13,6 +13,6 @@ import { AccessGroup } from '../accessGroups/access.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Product, User, AccessGroup])],
   controllers: [ProductsController],
-  providers: [ProductsService, AuthService, UserService, AccessService,JwtService],
+  providers: [ProductsService, AuthService, UsersService, AccessService,JwtService],
 })
 export class ProductsModule {}

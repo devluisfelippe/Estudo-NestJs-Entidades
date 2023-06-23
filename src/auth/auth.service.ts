@@ -1,18 +1,19 @@
 import { Inject, Injectable, NotFoundException, ParseUUIDPipe, UnauthorizedException, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../users/users.service';
+import { UsersService } from '../users/users.service';
 import * as jwt from 'jsonwebtoken'
+import { sendResetPassEmail } from '../utils/send-email';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(forwardRef(() => UserService)) private userService: UserService,
+    @Inject(forwardRef(() => UsersService)) private usersService: UsersService,
     private jwtService: JwtService,
   ) { };
 
-  async createToken(user_id: string, company_id: string): Promise<any> {
+  async createToken(user): Promise<any> {
     try {
-      const payload = { user_id: user_id, company_id: company_id };
+      const payload = { user: user };
       const new_token = this.jwtService.sign(payload, { secret: process.env.SECRET_APP_TOKEN, expiresIn: `${process.env.SECRET_APP_TOKEN_EXPIRATION}s` });
       return new_token;
     } catch (error) {
@@ -30,9 +31,9 @@ export class AuthService {
     };
   };
 
-  async createResetPassToken(email: string): Promise<any> {
+  async createResetPassToken(email): Promise<any> {
     try {
-      const user = await this.userService.emailExists(email);
+      const user = await this.usersService.userExists(email);
       if(!user){
         throw new Error('Usuário não encontrado.');
       };
@@ -40,7 +41,8 @@ export class AuthService {
       const payload = { user_id: user.id, company_id: user.company_id };
       const reset_pass_token = this.jwtService.sign(payload, { secret: process.env.SECRET_RESET_PASS_TOKEN, expiresIn: `${process.env.SECRET_RESET_PASS_EXPIRATION_TOKEN}s` });
       
-      console.log(reset_pass_token);
+      await sendResetPassEmail(user, reset_pass_token);
+      
       return reset_pass_token;
     } catch (error) {
       throw new Error(error.message);
@@ -49,7 +51,7 @@ export class AuthService {
 
   async resetPass(password, auth): Promise<any> {
     try {
-      const user = await this.userService.createNewPass(password, auth);
+      const user = await this.usersService.createPass(password, auth);
       if(!user){
         throw new Error('Usuário não encontrado.');
       };
@@ -60,32 +62,33 @@ export class AuthService {
     };
   };
 
-  async validateLoginCredentials(email: string, password: string): Promise<any> {
+  async validLoginCredentials(email: string, password: string): Promise<any> {
     try {
-      const user = await this.userService.validateLoginCredentials(email, password);
+      const user = await this.usersService.validateLoginCredentials(email, password);
       return user;
     } catch (error) {
       throw new Error('Erro ao validar credenciais de usuário.');
     };
   };
 
-  async verifyToken(token: string): Promise<any> {
+  async validToken(token: string): Promise<any> {
     try {
-      const payload = jwt.verify(token, process.env.SECRET_APP_TOKEN);
-      const valid_payload = this.userService.validPayloadUser(payload);
+      const payload: any = jwt.verify(token, process.env.SECRET_APP_TOKEN);
+      const valid_payload = this.usersService.validPayloadUser(payload);
       if (!valid_payload) {
         throw new NotFoundException('Usuário ou Empresa não existe.');
       };
-      return payload;
+
+      return payload.user;
     } catch (error) {
       throw new UnauthorizedException('Token de autenticação inválido');
     };
   };
 
-  async verifyPassToken(token: string): Promise<any> {
+  async validCreatePassToken(token: string): Promise<any> {
     try {
       const payload = jwt.verify(token, process.env.SECRET_CREATE_PASS_TOKEN);
-      const valid_payload = this.userService.validPayloadUser(payload);
+      const valid_payload = this.usersService.validPayloadUser(payload);
       if (!valid_payload) {
         throw new NotFoundException('Usuário ou Empresa não existe.');
       };
@@ -95,10 +98,10 @@ export class AuthService {
     };
   };
 
-  async verifyResetPassToken(token: string): Promise<any> {
+  async validResetPassToken(token: string): Promise<any> {
     try {
       const payload = jwt.verify(token, process.env.SECRET_RESET_PASS_TOKEN);
-      const valid_payload = this.userService.validPayloadUser(payload);
+      const valid_payload = this.usersService.validPayloadUser(payload);
       if (!valid_payload) {
         throw new NotFoundException('Usuário ou Empresa não existe.');
       };

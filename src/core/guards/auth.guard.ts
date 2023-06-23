@@ -14,10 +14,10 @@ export class AuthGuard implements CanActivate {
     };
 
     try {
-      const user = await this.authService.verifyToken(token);
-      const new_token = await this.authService.createToken(user.user_id, user.company_id);
+      const user = await this.authService.validToken(token);
+      const new_token = await this.authService.createToken(user);
       request.user = user;
-      request.new_token = new_token;
+      request.new_token = new_token
       return true;
     } catch (error) {
       throw new UnauthorizedException('Token de autenticação inválido');

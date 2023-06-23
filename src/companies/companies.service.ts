@@ -2,15 +2,15 @@ import { Injectable } from "@nestjs/common";
 import { Company } from "./company.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { UserService } from "../users/users.service";
+import { UsersService } from "../users/users.service";
 import { AccessService } from "../accessGroups/accessGroups.service";
 
 
 @Injectable()
-export class CompanyService {
+export class CompaniesService {
     constructor(
-        @InjectRepository(Company) private readonly companyRepositoy: Repository<Company>,
-        private userService: UserService,
+        @InjectRepository(Company) private readonly companyRepository: Repository<Company>,
+        private usersService: UsersService,
         private accessService: AccessService
     ) { };
 
@@ -24,7 +24,7 @@ export class CompanyService {
                 access_group_id: access_group_id
             };
             const status_user = 'ACTIV';
-            await this.userService.createUser(user_admin, status_user, company_id);
+            await this.usersService.createUser(user_admin, status_user, company_id);
         } catch (error) {
             throw new Error(error.message);
         };
@@ -43,7 +43,7 @@ export class CompanyService {
     async createCompany(company): Promise<any> {
         try {
             const company_data = { ...company };
-            const new_company = await this.companyRepositoy.save(company_data);
+            const new_company = await this.companyRepository.save(company_data);
             const access_group = await this.createAccessGroupAdmin(new_company.id);
             await this.createUserAdmin( access_group.id, new_company.id);
             return company;

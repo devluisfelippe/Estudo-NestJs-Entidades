@@ -1,24 +1,24 @@
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, UseGuards } from "@nestjs/common";
-import { UserService } from "./users.service";
+import { UsersService } from "./users.service";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import { NestResponseBuilder } from "../core/http/nest-response-builder";
 import { AuthGuard } from "../core/guards/auth.guard";
 import { AuthPassRequestor, AuthRequestor } from "../core/decorators/auth.decorator";
 import { NestResponse } from "../core/http/nest-response";
-import { AuthPass } from "../core/guards/auth-pass.guard";
+import { AuthPassToken } from "../core/guards/auth-pass.guard";
 import { CreatePasswordDTO } from "./dto/create-password.dto";
 import { NewPasswordDTO } from "./dto/new-password.dto";
 
 @Controller('/users')
-export class UserController {
-    constructor(private userService: UserService) { }
+export class UsersController {
+    constructor(private usersService: UsersService) { }
 
     @Post()
     @UseGuards(AuthGuard)
     async createUser(@AuthRequestor() auth: any, @Body() user: CreateUserDTO): Promise<NestResponse> {
         try {
             const status_user = 'PENDING'
-            await this.userService.createUser(user, status_user, auth.user.company_id);
+            await this.usersService.createUser(user, status_user, auth.user.company_id);
             return new NestResponseBuilder()
                 .withStatus(HttpStatus.CREATED)
                 .withNextAuth(auth.new_token)
@@ -32,10 +32,10 @@ export class UserController {
     };
 
     @Post('/password')
-    @UseGuards(AuthPass)
+    @UseGuards(AuthPassToken)
     async createPassword(@AuthPassRequestor() auth: any, @Body() pass: CreatePasswordDTO): Promise<NestResponse> {
         try {
-            await this.userService.createPass(pass.password, auth);
+            await this.usersService.createPass(pass.password, auth);
             return new NestResponseBuilder()
                 .withStatus(HttpStatus.CREATED)
                 .build();
@@ -49,18 +49,18 @@ export class UserController {
 
     @Put('/:uuid_user/password')
     @UseGuards(AuthGuard)
-    async updatePassword(@AuthRequestor() auth: any, @Param('uuid_user') user_id: string, @Body() password: NewPasswordDTO): Promise<NestResponse> {
+    async updatePassword(@AuthRequestor() auth: any, @Param('uuid_user') user_id: string, @Body() pass: NewPasswordDTO): Promise<NestResponse> {
         try {
             if (user_id !== auth.user.user_id) {
                 throw new Error('ID de usuário divergente de usuário logado.');
             };
             
-            const valid_pass = await this.userService.validPassUser(password.old_password, auth.user.user_id, auth.user.company_id);
+            const valid_pass = await this.usersService.validPassUser(pass.old_password, auth.user.user_id, auth.user.company_id);
             if (!valid_pass) {
                 throw new Error('Senha inválida.');
             };
 
-            await this.userService.createNewPass(password.confirm_new_password, auth.user);
+            await this.usersService.createPass(pass.new_password, auth.user);
             return new NestResponseBuilder()
                 .withStatus(HttpStatus.CREATED)
                 .withNextAuth(auth.new_token)
@@ -77,7 +77,7 @@ export class UserController {
     @UseGuards(AuthGuard)
     async getUsers(@AuthRequestor() auth: any) {
         try {
-            const users = await this.userService.getUsers();
+            const users = await this.usersService.getUsers();
             return new NestResponseBuilder()
                 .withStatus(HttpStatus.OK)
                 .withNextAuth(auth.new_token)
@@ -95,7 +95,7 @@ export class UserController {
     @UseGuards(AuthGuard)
     async deleteUser(@AuthRequestor() auth: any, @Param('id') id: string) {
         try {
-            await this.userService.deleteUser(id);
+            await this.usersService.deleteUser(id);
             return new NestResponseBuilder()
                 .withStatus(HttpStatus.OK)
                 .withNextAuth(auth.new_token)

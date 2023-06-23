@@ -5,12 +5,12 @@ import { Repository } from "typeorm";
 
 @Injectable()
 export class ProductsService {
-    constructor(@InjectRepository(Product) private readonly productRepository: Repository<Product>) { };
+    constructor(@InjectRepository(Product) private readonly productsRepository: Repository<Product>) { };
 
     async createProduct(product, company_id: string): Promise<any> {
         try {
             const product_data = { ...product, company_id };
-            await this.productRepository.save(product_data);
+            await this.productsRepository.save(product_data);
             return product;
         } catch (error) {
             throw new Error('Produto não foi criado!');
@@ -19,7 +19,7 @@ export class ProductsService {
 
     async getProducts(): Promise<any> {
         try {
-            const products = await this.productRepository.find({
+            const products = await this.productsRepository.find({
                 select: ['name', 'unit']
             });
             return products;
@@ -30,7 +30,7 @@ export class ProductsService {
 
     async findProduct(product_id: string, company_id: string): Promise<any> {
         try {
-            const product_exists = await this.productRepository.findOne({
+            const product_exists = await this.productsRepository.findOne({
                 where: { id: product_id, company_id: company_id }
             });
 

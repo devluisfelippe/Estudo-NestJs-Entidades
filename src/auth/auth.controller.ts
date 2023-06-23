@@ -4,7 +4,7 @@ import { NestResponseBuilder } from '../core/http/nest-response-builder';
 import { CredentialDTO } from './dto/credential.dto';
 import { NestResponse } from '../core/http/nest-response';
 import { EmailResetPasswordDTO, ResetPasswordDTO } from './dto/reset-password.dto';
-import { AuthResetPass } from '../core/guards/auth-reset-pass.guard';
+import { AuthResetToken } from '../core/guards/auth-reset-pass.guard';
 import { AuthPassRequestor } from '../core/decorators/auth.decorator';
 
 @Controller('/auth')
@@ -14,14 +14,15 @@ export class AuthController {
   @Post('/login')
   async login(@Body() credentials: CredentialDTO): Promise<NestResponse> {
     try {
-      const user_credentials = await this.authService.validateLoginCredentials(credentials.email, credentials.password);
+      const user_credentials = await this.authService.validLoginCredentials(credentials.email, credentials.password);
       if (!user_credentials) {
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           message: 'Credenciais inválidas.'
         });
       };
-      const new_token = await this.authService.createToken(user_credentials.id, user_credentials.company_id);
+
+      const new_token = await this.authService.createToken(user_credentials);
       return new NestResponseBuilder()
         .withStatus(HttpStatus.CREATED)
         .withNextAuth(new_token)
@@ -35,9 +36,9 @@ export class AuthController {
   };
 
   @Post('/resetpassword')
-  async resetPassword(@Body() email_reset_password: EmailResetPasswordDTO): Promise<NestResponse> {
+  async createResetPassToken(@Body() email_password: EmailResetPasswordDTO): Promise<NestResponse> {
     try {
-      await this.authService.createResetPassToken(email_reset_password.email);
+      await this.authService.createResetPassToken(email_password.email);
       return new NestResponseBuilder()
         .withStatus(HttpStatus.CREATED)
         .build();
@@ -50,10 +51,10 @@ export class AuthController {
   };
 
   @Put('/resetpassword')
-  @UseGuards(AuthResetPass)
-  async createNewPassword(@AuthPassRequestor() auth: any, @Body() new_pass: ResetPasswordDTO): Promise<NestResponse> {
+  @UseGuards(AuthResetToken)
+  async resetPassword(@AuthPassRequestor() auth: any, @Body() pass: ResetPasswordDTO): Promise<NestResponse> {
     try {
-      await this.authService.resetPass(new_pass.confirm_password, auth);
+      await this.authService.resetPass(pass.password, auth);
       return new NestResponseBuilder()
         .withStatus(HttpStatus.CREATED)
         .build();
